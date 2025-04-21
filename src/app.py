@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 
+
 def get_api_key():
     load_dotenv()
     api_key = os.getenv("GEMINI_API_KEY")
@@ -13,14 +14,14 @@ def get_api_key():
         return
     else:
         return api_key
-    
+
+
 def app():
     try:
         client = genai.Client(api_key=get_api_key())
         chat = client.chats.create(model="gemini-2.5-flash-preview-04-17")
 
         response = chat.send_message_stream("Hello world! Tell me about yourself.")
-        
         for chunk in response:
             print(chunk.text, end="")
 

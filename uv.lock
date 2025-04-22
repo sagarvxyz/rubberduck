@@ -296,7 +296,7 @@ wheels = [
 ]
 
 [[package]]
-name = "rubberducky"
+name = "rubberduck"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

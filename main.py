@@ -25,7 +25,7 @@ def load_config():
 
 
 if __name__ == "__main__":
-    print("Starting RubberDucky...")
+    print("Starting RubberDuck...")
     config = load_config()
     # Pass the loaded config dictionary to the app function
     app(config)

@@ -1,31 +1,37 @@
 import sys
 import os
-import urllib3
-import yaml
+import asyncio
+from src.agent.core import Agent
 
-from src.app import app
-
-
-urllib3.disable_warnings()
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
+file_dir = os.path.dirname(__file__)
+sys.path.append(file_dir)
+sys.path.append(os.path.join(file_dir, "src"))
 
 
-def load_config():
+async def run():
     """
-    Load the configuration from the config.json file.
+    Run the main function of the RubberDuck agent.
     """
-    config_path = os.path.join(os.path.dirname(__file__), "config.yml")
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    # Load the agent configuration
+    agent_id = "Duck"
+    agent = Agent(agent_id)
 
-    with open(config_path, "r") as config_file:
-        config = yaml.safe_load(config_file)
+    # Send a message to the agent and handle streaming
+    print("...", end="", flush=True)  # Print indicator and flush buffer
+    first_chunk_received = False
 
-        return config["main"]
+    async for chunk in agent.send_message("Tell me about yourself."):
+        if not first_chunk_received:
+            # Clear the "..." indicator by printing backspaces or spaces
+            # This is a simple way, more robust methods exist for terminals
+            print("\b" * 3 + "   " + "\b" * 3, end="", flush=True)
+            first_chunk_received = True
+
+        print(chunk, end="", flush=True)  # Print chunk and flush buffer
+
+    print()  # Print a final newline after the stream ends
 
 
 if __name__ == "__main__":
     print("Starting RubberDuck...")
-    config = load_config()
-    # Pass the loaded config dictionary to the app function
-    app(config)
+    asyncio.run(run())

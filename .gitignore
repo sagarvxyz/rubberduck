@@ -173,5 +173,6 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# config file
-config.yml
+# project specific files
+.llm
+agent_config.yml

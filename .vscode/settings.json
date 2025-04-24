@@ -8,11 +8,11 @@
     "flake8.args": [
         "--max-line-length=100",
     ],
-    "python.linting.lintOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
-    "python.linting.mypyEnabled": true,
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "./.venv/bin/python",
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true,

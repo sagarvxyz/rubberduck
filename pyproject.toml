@@ -1,10 +1,11 @@
 [project]
 name = "rubberduck"
 version = "0.1.0"
-description = "Add your description here"
+description = "A personal coding assistant."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "asyncio>=3.4.3",
     "dotenv>=0.9.9",
     "google>=3.0.0",
     "google-genai>=1.11.0",

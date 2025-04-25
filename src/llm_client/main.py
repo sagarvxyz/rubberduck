@@ -1,6 +1,6 @@
-from src.utils.get_agent_config import get_agent_config
-from src.project_types import ILLMClient
 from src.llm_client.google_client import GoogleLLMClient
+from src.utils.get_agent_config import get_agent_config
+from src.llm_client.types import ILLMClient
 
 
 def get_llm_client(agent_id: str) -> ILLMClient:

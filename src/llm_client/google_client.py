@@ -1,8 +1,8 @@
 from google import genai
 from google.genai import types as genai_types
-from src.utils.get_agent_config import get_agent_config
-from src.project_types import ILLMClient, Message, Task
 from typing import AsyncIterator
+from src.utils.get_agent_config import get_agent_config
+from src.llm_client.types import ILLMClient
 
 
 class GoogleLLMClient(ILLMClient):
@@ -11,6 +11,7 @@ class GoogleLLMClient(ILLMClient):
     def __init__(self, agent_id: str):
         self.agent_id = agent_id
         self._agent_config = get_agent_config(agent_id)
+
         self._client = genai.Client(
             api_key=self._agent_config["api_key"],
             http_options=genai_types.HttpOptions(
@@ -19,7 +20,7 @@ class GoogleLLMClient(ILLMClient):
         )
 
     async def handle_message(
-        self, messages: list[Message | None] = [], task: Task | None = None
+        self, messages=[]
     ) -> AsyncIterator[str]:  # Changed return type to AsyncIterator
         """Handle prompt using Google GenAI and stream response chunks."""
         try:

@@ -101,7 +101,7 @@ Part = Union[TextPart, FilePart, DataPart]
 # Core Interfaces as Dataclasses
 @dataclass
 class Message:
-    role: Literal["user", "agent"]
+    sender: str
     parts: List[Part]
     metadata: Optional[Dict[str, Any]] = field(default=None)
 

@@ -1,5 +1,6 @@
 from src.agent.main import Agent
 from src.agent.types import Message, TextPart
+from datetime import datetime
 
 
 def get_user_message():
@@ -7,7 +8,11 @@ def get_user_message():
     if text.lower() == "exit":
         print("Exiting...")
         exit(0)
-    message = Message(role="user", parts=[TextPart(type="text", text=text)])
+    message = Message(
+        sender="user",
+        parts=[TextPart(type="text", text=text)],
+        metadata={"timestamp": datetime.now()},
+    )
     return message
 
 
@@ -18,7 +23,7 @@ async def run():
     while True:
         user_message = get_user_message()
         # Process the user message
-        response = client.post_message([user_message])
+        response = client.post_message(user_message)
         print("Code Agent: ", end="", flush=True)
         async for chunk in response:
             print(chunk, end="", flush=True)  # Print chunk immediately

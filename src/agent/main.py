@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
-
+import json
 from src.llm_client.main import get_llm_client
-from src.agent.types import Message, Task, Artifact
+from src.agent.types import Message, Task, Artifact, Part
 
 
 class Agent:
@@ -13,13 +13,13 @@ class Agent:
 
         # Internal storage for server data
         self._messages: List[Message] = []
-        self._tasks: Dict[str, Task] = {}
+        self._tasks: Dict[str, Task] = {}  # task_id -> Task
         self._artifacts: Dict[str, Dict[int, Artifact]] = {}  # task_id -> index -> Artifact
 
     async def post_message(self, message: Message):
         """Processes an incoming Message."""
         self._messages.append(message)
-        chunks = self._llm_client.handle_message(message)
+        chunks = self._llm_client.handle_message(self._messages)
         async for chunk in chunks:
             yield chunk
         return

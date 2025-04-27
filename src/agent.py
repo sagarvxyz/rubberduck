@@ -1,6 +1,24 @@
 __all__ = ["get_agent"]
 
 
+def get_agent(agent_id: str):
+    """
+    Get the agent instance based on the agent_id.
+    """
+
+    agent_config = get_agent_config(agent_id)
+    if agent_config["model_provider"] == "google":
+        from src.llm import get_llm_client
+
+        return Agent(
+            agent_config=agent_config,
+            llm_client=get_llm_client(agent_id),
+        )
+
+    else:
+        raise ValueError(f"Unsupported model provider: {agent_config['model_provider']}")
+
+
 def get_agent_config(agent_id: str):
     """
     Get the configuration for a given agent_id (key) from the agent_config.yml file at the project root.
@@ -19,24 +37,6 @@ def get_agent_config(agent_id: str):
 
     except Exception as e:
         raise ValueError(f"Error loading agent configuration: {e}")
-
-
-def get_agent(agent_id: str):
-    """
-    Get the agent instance based on the agent_id.
-    """
-
-    agent_config = get_agent_config(agent_id)
-    if agent_config["model_provider"] == "google":
-        from src.llm import get_llm_client
-
-        return Agent(
-            agent_config=agent_config,
-            llm_client=get_llm_client(agent_id),
-        )
-
-    else:
-        raise ValueError(f"Unsupported model provider: {agent_config['model_provider']}")
 
 
 class Agent:
@@ -64,7 +64,7 @@ class Agent:
 
         self._history.append(new_content)
 
-        response = await self._llm_client.post(contents=self._history, config=self.config)
+        response = await self._llm_client.post(contents=self._history, agent_config=self.config)
         if not response:
             raise ValueError("No response received from the LLM client.")
         content = self._llm_client.create_content(

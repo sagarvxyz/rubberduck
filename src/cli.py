@@ -1,14 +1,26 @@
+__all__ = ["get_cli"]
+
 from src.agent import get_agent
 
 
-class CLI:
-    """"""
+def get_cli(agent_id="cli"):
+    """
+    Get the CLI instance.
+    """
+    return CLI(agent_id=agent_id)
 
-    def __init__(self, agent_id="main"):
+
+class CLI:
+    """
+    Command Line Interface (CLI), with a built in agent to interact with
+    other tools and agents.
+    """
+
+    def __init__(self, agent_id="cli"):
         self._agent = get_agent(agent_id=agent_id)
 
     def _get_user_message(self):
-        return input("You: ")
+        return input("You: ").strip()
 
     async def _post(self, message):
         """

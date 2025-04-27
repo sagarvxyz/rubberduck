@@ -6,14 +6,10 @@ from abc import ABC, abstractmethod
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+import src.tools as tools
 
-default_model_name = "gemini-2.5-flash-preview-04-17"
-default_config = types.GenerateContentConfigDict(
-    http_options=types.HttpOptions(api_version="v1alpha"),
-    temperature=0,
-    max_output_tokens=65536,
-    thinking_config=types.ThinkingConfig(include_thoughts=False, thinking_budget=1024),
-)
+default_model_name = "gemini-2.0-flash"
+default_config = types.GenerateContentConfigDict()
 
 
 def get_llm_client(agent_id):
@@ -79,19 +75,22 @@ class GoogleLLMClient(LLMClient):
         else:
             raise ValueError(f"Unsupported message type: {type}")
 
-    async def post(self, contents, config={}):
+    async def post(self, contents, agent_config={}):
         """Post contents to the Google GenAI client. Use create_content to format content before posting."""
-        merged_config = default_config | config
+        merged_config = default_config | agent_config.get("config", {})
+        merged_config["tools"] = []
+        for tool_name in agent_config["tools"]:
+            function = tools.__dict__.get(tool_name, None)
+            if function is None:
+                continue
+            merged_config["tools"].append(function)
 
         if not contents:
             raise ValueError("No contents provided to post.")
         response = await self.client.aio.models.generate_content(
-            model=config["model_name"] or default_model_name,
+            model=agent_config.get("model_name", default_model_name),
             contents=contents,
-            config=types.GenerateContentConfig(
-                http_options=merged_config["http_options"],
-                thinking_config=merged_config["thinking_config"],
-            ),
+            config=types.GenerateContentConfig(**merged_config),
         )
 
         return response

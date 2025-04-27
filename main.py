@@ -1,11 +1,8 @@
-import sys
-import os
 import asyncio
-from src.cli.main import run
+from src.cli import CLI
+
 
 if __name__ == "__main__":
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(project_root)
-
-    print("Starting RubberDuck...")
-    asyncio.run(run())
+    print("Starting...")
+    cli = CLI()
+    asyncio.run(cli.run())

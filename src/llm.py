@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-import src.tools as tools
 
 default_model_name = "gemini-2.0-flash"
 default_config = types.GenerateContentConfigDict()
@@ -17,6 +16,7 @@ def get_llm_client(agent_id):
     Get the LLM client based on the agent ID.
     """
     if agent_id:
+
         return GoogleLLMClient()
     else:
         raise ValueError(f"Unsupported model provider: {agent_id}")
@@ -28,7 +28,7 @@ class LLMClient(ABC):
     """
 
     @abstractmethod
-    def _get_client(self):
+    def run(self):
         pass
 
     @abstractmethod
@@ -36,7 +36,11 @@ class LLMClient(ABC):
         pass
 
     @abstractmethod
-    async def post(self, contents, config={}):
+    def create_tools(self, content, type="text", role="user"):
+        pass
+
+    @abstractmethod
+    async def post(self, contents, config={}, tools=None):
         pass
 
 
@@ -46,9 +50,9 @@ class GoogleLLMClient(LLMClient):
     """
 
     def __init__(self):
-        self.client = self._get_client()
+        self.client = None
 
-    def _get_client(self):
+    def run(self):
         """
         Get the Google GenAI client.
         """
@@ -59,7 +63,7 @@ class GoogleLLMClient(LLMClient):
                 "API key not found. Please set the GOOGLE_API_KEY environment variable."
             )
 
-        return genai.Client(api_key=api_key)
+        self.client = genai.Client(api_key=api_key)
 
     def create_content(self, content, type="text", role="user"):
         """Convert content into the proper format."""
@@ -75,22 +79,42 @@ class GoogleLLMClient(LLMClient):
         else:
             raise ValueError(f"Unsupported message type: {type}")
 
-    async def post(self, contents, agent_config={}):
+    def create_tools(self, tools):
+        """Convert tools from MCP to Gemini format."""
+        llm_tools = []
+        for tool in tools:
+            parameters = {}
+            for key, value in tool.inputSchema.items():
+                if key not in ["additionalProperties", "$schema"]:
+                    parameters[key] = value
+            try:
+                llm_tool = types.Tool(
+                    function_declarations=[
+                        {
+                            "name": tool.name,
+                            "description": tool.description,
+                            "parameters": parameters,
+                        }
+                    ]
+                )
+                llm_tools.append(llm_tool)
+            except Exception:
+                continue
+
+        return llm_tools
+
+    async def post(self, contents, agent_config={}, tools=None):
         """Post contents to the Google GenAI client. Use create_content to format content before posting."""
         merged_config = default_config | agent_config.get("config", {})
-        merged_config["tools"] = []
-        for tool_name in agent_config.get("tools", []):
-            function = tools.__dict__.get(tool_name, None)
-            if function is None:
-                continue
-            merged_config["tools"].append(function)
 
         if not contents:
             raise ValueError("No contents provided to post.")
+
+        # Pass tools_to_pass as a separate argument to generate_content
         response = await self.client.aio.models.generate_content(
             model=agent_config.get("model_name", default_model_name),
             contents=contents,
-            config=types.GenerateContentConfig(**merged_config),
+            config=types.GenerateContentConfig(**merged_config, tools=tools),
         )
 
         return response

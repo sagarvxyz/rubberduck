@@ -175,4 +175,4 @@ cython_debug/
 
 # project specific files
 .llm
-agent_config.yml
+config.yml

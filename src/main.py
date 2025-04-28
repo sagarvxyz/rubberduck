@@ -2,24 +2,28 @@ import asyncio
 from src.client import get_client
 
 
-async def run(agent_id="main"):
+async def run():
     """
     Starts the conversation loop between the user and agent(s).
     """
     try:
-        client = get_client(agent_id)
+        client = get_client()
+        await client.run()
+
         while True:
-            user_message = client.get_user_message()
+            user_message = await client.get_user_message()
+
             if user_message.lower() in ["exit", "quit"]:
                 raise KeyboardInterrupt
 
             # Process the user message
             response = await client.post(user_message)
-            print(f"{client.agent.name}: ", end="", flush=True)
-            for part in response.parts:
-                print(part.text, end="", flush=True)
+            await client.get_agent_message(response)
 
     except KeyboardInterrupt:
+        print("\nGoodbye!")
+        exit(0)
+    except EOFError:
         print("\nGoodbye!")
         exit(0)
     except Exception as e:

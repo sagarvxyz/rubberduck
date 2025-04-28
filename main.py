@@ -21,7 +21,7 @@ if __name__ == "__main__":
     else:
         print("Starting...")
     try:
-        asyncio.run(run("main"))
+        asyncio.run(run())
 
         if environment == "dev":
             logging.info("Application finished successfully.")

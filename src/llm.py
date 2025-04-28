@@ -79,7 +79,7 @@ class GoogleLLMClient(LLMClient):
         """Post contents to the Google GenAI client. Use create_content to format content before posting."""
         merged_config = default_config | agent_config.get("config", {})
         merged_config["tools"] = []
-        for tool_name in agent_config["tools"]:
+        for tool_name in agent_config.get("tools", []):
             function = tools.__dict__.get(tool_name, None)
             if function is None:
                 continue

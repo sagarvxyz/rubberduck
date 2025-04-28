@@ -2,7 +2,7 @@ import asyncio
 import sys
 import logging
 import argparse
-from src.cli import get_cli
+from src.main import run
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the application CLI.")
@@ -21,9 +21,7 @@ if __name__ == "__main__":
     else:
         print("Starting...")
     try:
-        cli = get_cli("dev")
-
-        asyncio.run(cli.run())
+        asyncio.run(run("main"))
 
         if environment == "dev":
             logging.info("Application finished successfully.")

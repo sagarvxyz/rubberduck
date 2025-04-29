@@ -1,0 +1,44 @@
+agents:
+  chat:
+    name: Operator
+    model_provider: google
+    model_name: gemini-2.0-flash
+    config:
+      http_options:
+          api_version: v1alpha
+      temperature: 0
+      max_output_tokens: 8192
+    tools:
+     - git
+     - filesystem
+     - custom_functions
+
+  dev:
+    name: Neo
+    model_provider: google
+    model_name: gemini-2.5-flash-preview-04-17
+    config:
+      http_options:
+          api_version: v1alpha
+      temperature: 0
+      max_output_tokens: 65536
+      thinking_config:
+        thinking_budget: 1024
+
+mcp_servers:
+  git:
+    command: uvx
+    args:
+      - "mcp-server-git"
+      - "--repository"
+      - "."
+  filesystem:
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "."
+  custom_functions:
+    function_dirs:
+      - "src/functions"
+    debug: false
